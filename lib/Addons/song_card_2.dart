@@ -1,11 +1,11 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:vibean/Helper/song.dart';
 
 class SongCard2 extends StatefulWidget {
   final Song song;
-  const SongCard2({Key? key, required this.song}) : super(key: key);
+  final VoidCallback playSong;
+  const SongCard2({Key? key, required this.song, required this.playSong})
+      : super(key: key);
 
   @override
   _SongCardState createState() => _SongCardState();
@@ -24,11 +24,7 @@ class _SongCardState extends State<SongCard2> {
         children: [
           Padding(
             padding: const EdgeInsets.all(5),
-            child: Image.network(
-              widget.song.image,
-              width: 45,
-              height: 45,
-            ),
+            child: Image.network(widget.song.image, width: 45, height: 45),
           ),
           Expanded(
             flex: 4,
@@ -41,7 +37,7 @@ class _SongCardState extends State<SongCard2> {
           ),
           Expanded(
             child: IconButton(
-              onPressed: () {},
+              onPressed: widget.playSong,
               icon: Icon(Icons.play_arrow),
               color: Colors.white,
             ),
