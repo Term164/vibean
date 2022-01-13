@@ -10,7 +10,7 @@ import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:localstore/localstore.dart';
 
 class SongCard extends StatefulWidget {
-  final Function update;
+  final Function(dynamic) update;
   final PlaylistItem song;
   const SongCard({Key? key, required this.song, required this.update})
       : super(key: key);
@@ -72,8 +72,8 @@ class _SongCardState extends State<SongCard> {
                         await ExtStorage.getExternalStoragePublicDirectory(
                             ExtStorage.DIRECTORY_DOWNLOADS);
 
-                    File file =
-                        await File(path + "/test.mp4").create(recursive: true);
+                    File file = await File(path + "/${video.title}.mp4")
+                        .create(recursive: true);
 
                     var fileStream = file.openWrite();
 
@@ -82,20 +82,28 @@ class _SongCardState extends State<SongCard> {
                     await fileStream.flush();
                     await fileStream.close();
 
+                    final snackBar = SnackBar(
+                        content: const Text('Download finished'),
+                        action:
+                            SnackBarAction(label: 'Hide', onPressed: () {}));
+
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
                     final FlutterFFmpeg _flutterFFmpeg = new FlutterFFmpeg();
                     await _flutterFFmpeg
-                        .execute("-i ${path}/test.mp4 -vn ${path}/test.mp3")
+                        .execute(
+                            '-i "${path}/${video.title}.mp4" -vn "${path}/${video.title}.mp3"')
                         .then(
                             (rc) => print("FFmpeg process exited with rc $rc"));
 
-                    await File(path + "/test.mp4").delete();
+                    await File(path + "/${video.title}.mp4").delete();
 
                     final db = Localstore.instance;
                     final id = db.collection('songs').doc().id;
 
                     db.collection('songs').doc(id).set({
                       'title': '${widget.song.snippet!.title}',
-                      'uri': '${path}/test.mp3',
+                      'uri': '${path}/${video.title}.mp3',
                       'image':
                           '${widget.song.snippet!.thumbnails!.default_?.url}',
                       'author':
@@ -116,13 +124,13 @@ class _SongCardState extends State<SongCard> {
                     // final test = await db.collection('songs').get();
                     // print(test);
 
-                    final snackBar = SnackBar(
-                        content: const Text('Download finished'),
+                    final secondSnackBar = SnackBar(
+                        content: const Text('Conversion finshed'),
                         action:
                             SnackBarAction(label: 'Hide', onPressed: () {}));
 
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    widget.update();
+                    ScaffoldMessenger.of(context).showSnackBar(secondSnackBar);
+                    widget.update(await db.collection('songs').doc(id).get());
                   }
                 }
 

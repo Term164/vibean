@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
+import 'package:flutter_audio_query/flutter_audio_query.dart';
 import 'package:googleapis/servicemanagement/v1.dart';
 import 'package:localstore/localstore.dart';
 import 'package:vibean/Addons/song_card.dart';
@@ -12,6 +14,7 @@ import 'package:vibean/pages/loading.dart';
 
 final _googleSignIn =
     GoogleSignIn(scopes: <String>[YouTubeApi.youtubeReadonlyScope]);
+final FlutterAudioQuery audioQuery = FlutterAudioQuery();
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -33,22 +36,37 @@ class _HomeState extends State<Home> {
       "https://cdn4.iconfinder.com/data/icons/elega-music-controls/100/Album-512.png";
 
   late List<Song> songs;
+  late List<SongInfo> storedSongs;
 
-  void updateSongsList() async {
-    final items = await db.collection('songs').get();
+  void updateSongsList(song) async {
     setState(() {
-      for (var i = 0; i < songs.length; i++) {
-        if (i >= items!.length) return;
-        var song = items.values.elementAt(i);
-        if (song != null) {
-          songs[i] = Song(song['author'], song['title'], song['duration'],
-              song['image'], song['uri']);
-        }
+      for (var i = 3; i >= 0; i--) {
+        songs[i + 1] = songs[i];
       }
+      songs[0] = Song(song['author'], song['title'], song['duration'],
+          song['image'], song['uri']);
     });
   }
 
-  void playRandomSong() {}
+  void getLocalSongs() async {
+    storedSongs = await audioQuery.getSongs();
+  }
+
+  var random = new Random();
+  void playRandomSong() {
+    int randomSongIndex = random.nextInt(storedSongs.length);
+    SongInfo song = storedSongs[randomSongIndex];
+    playSong(song.uri);
+    String displayName = song.displayName ?? "N/A";
+    String duration = song.duration ?? "N/A";
+    String artist = song.artist ?? "N/A";
+    setState(() {
+      currentAuthor = artist;
+      currentTitle = displayName;
+      pictureURI =
+          "https://cdn4.iconfinder.com/data/icons/elega-music-controls/100/Album-512.png";
+    });
+  }
 
   void playDownloadedSong(Song song) {
     setState(() {
@@ -97,9 +115,9 @@ class _HomeState extends State<Home> {
     }
   }
 
-  playSong(uri) {
-    assetsAudioPlayer.pause();
-    assetsAudioPlayer.open(Audio.file(uri));
+  playSong(uri) async {
+    await assetsAudioPlayer.pause();
+    await assetsAudioPlayer.open(Audio.file(uri));
     assetsAudioPlayer.play();
   }
 
@@ -152,14 +170,8 @@ class _HomeState extends State<Home> {
           const Divider(height: 20, thickness: 3),
           ListTile(
             leading: Icon(Icons.info_outline, size: 40, color: textColor),
-            title: Text("About us", style: TextStyle(color: textColor)),
-            onTap: () => null,
-          ),
-          ListTile(
-            leading:
-                Icon(Icons.warning_amber_rounded, size: 40, color: textColor),
-            title: Text("Report a bug", style: TextStyle(color: textColor)),
-            onTap: () => null,
+            title: Text("Contact us", style: TextStyle(color: textColor)),
+            onTap: () => Navigator.pushNamed(context, '/contactus'),
           ),
           const Divider(height: 20, thickness: 3),
           ListTile(
@@ -181,6 +193,8 @@ class _HomeState extends State<Home> {
     _currentUser = data['user'];
     _youtubeApi = data['youtube'];
     songs = data['songs'];
+    getLocalSongs();
+
     return Scaffold(
       backgroundColor: Colors.blue[900],
       appBar: AppBar(
@@ -208,6 +222,7 @@ class _HomeState extends State<Home> {
                 style: TextStyle(
                     color: mainColor,
                     fontSize: 20,
+                    fontFamily: 'gluck',
                     fontWeight: FontWeight.bold),
               ),
             ),
@@ -252,29 +267,35 @@ class _HomeState extends State<Home> {
                 style: TextStyle(
                     color: mainColor,
                     fontSize: 20,
+                    fontFamily: 'gluck',
                     fontWeight: FontWeight.bold),
               ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                button("Shuffle play", Icon(Icons.shuffle, size: 50), () {}),
+                button("Shuffle play", Icon(Icons.shuffle, size: 50), () {
+                  playRandomSong();
+                }),
                 button("Library", Icon(Icons.library_music_outlined, size: 50),
                     () {
                   Loading.mode = 0;
                   Navigator.pushNamed(context, "/loading");
                 }),
                 button("Recommended",
-                    Icon(Icons.local_fire_department_sharp, size: 50), () {}),
+                    Icon(Icons.local_fire_department_sharp, size: 50), () {
+                  playRandomSong();
+                }),
               ],
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(15, 15, 0, 15),
+              padding: const EdgeInsets.fromLTRB(15, 15, 0, 0),
               child: Text(
                 "Added recently",
                 style: TextStyle(
                     color: mainColor,
                     fontSize: 20,
+                    fontFamily: 'gluck',
                     fontWeight: FontWeight.bold),
               ),
             ),

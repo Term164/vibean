@@ -15,30 +15,31 @@ class _SongCardState extends State<SongCard2> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(20)),
       ),
       width: 340,
-      height: 60,
+      height: 80,
       child: Row(
         children: [
           Padding(
             padding: const EdgeInsets.all(5),
-            child: Image.network(widget.song.image, width: 45, height: 45),
+            child: Image.network(widget.song.image, width: 60, height: 60),
           ),
           Expanded(
-            flex: 4,
+            flex: 5,
             child: ListTile(
               title: Text(widget.song.title + " - " + widget.song.duration,
-                  style: TextStyle(color: Colors.white)),
+                  style: const TextStyle(color: Colors.white)),
               subtitle: Text(widget.song.author,
-                  style: TextStyle(color: Colors.white)),
+                  style: const TextStyle(color: Colors.white)),
             ),
           ),
-          Expanded(
+          Flexible(
+            flex: 1,
             child: IconButton(
               onPressed: widget.playSong,
-              icon: Icon(Icons.play_arrow),
+              icon: const Icon(Icons.play_arrow),
               color: Colors.white,
             ),
           ),

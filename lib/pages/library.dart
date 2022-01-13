@@ -52,7 +52,7 @@ class _MusicLibraryState extends State<MusicLibrary> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.music_video,
                       size: 90,
                     ),
@@ -116,9 +116,9 @@ class _MusicLibraryState extends State<MusicLibrary> {
     }
   }
 
-  void playSong(uri) {
-    assetsAudioPlayer.pause();
-    assetsAudioPlayer.open(Audio.file(uri));
+  void playSong(uri) async {
+    await assetsAudioPlayer.pause();
+    await assetsAudioPlayer.open(Audio.file(uri));
     assetsAudioPlayer.play();
   }
 

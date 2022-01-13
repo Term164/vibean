@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vibean/Helper/song.dart';
+import 'package:open_file/open_file.dart';
 
 class Downloads extends StatefulWidget {
   const Downloads({Key? key}) : super(key: key);
@@ -53,7 +54,11 @@ class _DownloadsState extends State<Downloads> {
         children: [
           const Padding(
             padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-            child: Icon(Icons.folder, size: 60),
+            child: Icon(
+              Icons.music_video_rounded,
+              size: 60,
+              color: Colors.orange,
+            ),
           ),
           Expanded(
             flex: 5,
@@ -62,6 +67,16 @@ class _DownloadsState extends State<Downloads> {
                   style: const TextStyle(color: Colors.white)),
               subtitle:
                   Text(artist, style: const TextStyle(color: Colors.white)),
+            ),
+          ),
+          IconButton(
+            onPressed: () {
+              OpenFile.open(song.uri);
+            },
+            icon: const Icon(
+              Icons.folder,
+              size: 30,
+              color: Color(0xffffe9a2),
             ),
           ),
         ],

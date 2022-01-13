@@ -6,9 +6,12 @@ import 'package:vibean/pages/home.dart';
 import 'package:vibean/pages/loading.dart';
 import 'package:vibean/pages/login.dart';
 import 'package:localstore/localstore.dart';
+import 'package:flutter/services.dart';
+import 'package:vibean/pages/report.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     initialRoute: '/',
@@ -18,6 +21,7 @@ void main() {
       '/home': (context) => Home(),
       '/downloads': (context) => Downloads(),
       '/library': (context) => MusicLibrary(),
+      '/contactus': (context) => Contact(),
     },
   ));
 }
